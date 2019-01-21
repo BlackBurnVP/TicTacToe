@@ -116,12 +116,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         if(winner != -1){
-            if(winner==1){
-                Toast.makeText(this,"WINNER IS PLAYER 1",Toast.LENGTH_SHORT).show()
-                ActivePlayer = 0
-            };else{
-                Toast.makeText(this,"WINNER IS PLAYER 2",Toast.LENGTH_SHORT).show()
-            }
+            anounceWinner()
+//            if(winner==1){
+//                Toast.makeText(this,"WINNER IS PLAYER 1",Toast.LENGTH_SHORT).show()
+//                ActivePlayer = 0
+//            };else{
+//                Toast.makeText(this,"WINNER IS PLAYER 2",Toast.LENGTH_SHORT).show()
+//            }
         }
     }
 
@@ -152,6 +153,9 @@ class MainActivity : AppCompatActivity() {
         if(winner == -1){
             playGame(cellId,btnSelected)
         }
+    }
 
+    private fun anounceWinner(){
+            Toast.makeText(this,"WINNER IS PLAYER $winner",Toast.LENGTH_SHORT).show()
     }
 }
