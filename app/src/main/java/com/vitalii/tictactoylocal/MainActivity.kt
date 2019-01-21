@@ -6,18 +6,24 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
+import kotlin.math.nextDown
 
 class MainActivity : AppCompatActivity() {
 
     var Player1 = ArrayList<Int>()
     var Player2 = ArrayList<Int>()
     var ActivePlayer = 1
+    var emptyCell = ArrayList<Int>()
+    var winner =-1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
     }
 
-    private fun onClick(view: View){
+    protected fun onClick(view: View){
 
         val btnSelected = view as Button
         var cellID = 0
@@ -38,23 +44,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun playGame(cellId:Int,btnSelected:Button) {
-        if (ActivePlayer == 1) {
-            btnSelected.text = "X"
-            btnSelected.setBackgroundColor(Color.GREEN)
-            Player1.add(cellId)
-            ActivePlayer = 2
-        };else{
-            btnSelected.text = "O"
-            btnSelected.setBackgroundColor(Color.BLUE)
-            Player2.add(cellId)
-            ActivePlayer = 1
-        }
-        btnSelected.isEnabled = false
-        findWinner()
+            if (ActivePlayer == 1) {
+                btnSelected.text = "X"
+                btnSelected.setBackgroundColor(Color.GREEN)
+                Player1.add(cellId)
+                findWinner()
+                ActivePlayer = 2
+                if(winner == -1){
+                    ArtificialPlayer()
+                }
+            }; else if (ActivePlayer == 2) {
+                btnSelected.text = "O"
+                btnSelected.setBackgroundColor(Color.BLUE)
+                Player2.add(cellId)
+                ActivePlayer = 1
+            }
+            btnSelected.isEnabled = false
+            //findWinner()
     }
 
     private fun findWinner(){
-        var winner = -1
         if(Player1.contains(1) && Player1.contains(2) && Player1.contains(3)){
             winner = 1
         }
@@ -109,9 +118,40 @@ class MainActivity : AppCompatActivity() {
         if(winner != -1){
             if(winner==1){
                 Toast.makeText(this,"WINNER IS PLAYER 1",Toast.LENGTH_SHORT).show()
+                ActivePlayer = 0
             };else{
                 Toast.makeText(this,"WINNER IS PLAYER 2",Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun ArtificialPlayer(){
+        for (cellId in 1..9){
+            if(!(Player1.contains(cellId) || Player2.contains(cellId))){
+                emptyCell.add(cellId)
+            }
+        }
+        val r = Random()
+        val randIndex = r.nextInt(emptyCell.size-0)+0
+        val cellId = emptyCell[randIndex]
+
+        val btnSelected:Button
+        when(cellId){
+            1-> btnSelected = btn1
+            2-> btnSelected = btn2
+            3-> btnSelected = btn3
+            4-> btnSelected = btn4
+            5-> btnSelected = btn5
+            6-> btnSelected = btn6
+            7-> btnSelected = btn7
+            8-> btnSelected = btn8
+            9-> btnSelected = btn9
+            else -> btnSelected = btn1
+        }
+        findWinner()
+        if(winner == -1){
+            playGame(cellId,btnSelected)
+        }
+
     }
 }
