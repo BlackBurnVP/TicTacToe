@@ -7,12 +7,14 @@ import android.view.View
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_login.*
 import com.google.firebase.auth.FirebaseAuth
-
+import com.google.firebase.database.FirebaseDatabase
 
 
 class LoginActivity : AppCompatActivity() {
 
     private var mAuth: FirebaseAuth? = null
+    private var mDatabase:FirebaseDatabase = FirebaseDatabase.getInstance()
+    private var mRef = mDatabase.reference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +33,7 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener{
                 if (it.isSuccessful){
                     Toast.makeText(this,"Successful",Toast.LENGTH_SHORT).show()
+                    mRef.child("Users").child(splitString(mAuth!!.currentUser!!.email!!)).setValue(mAuth!!.currentUser!!.uid)
                     toMain()
                 }else{
                     Toast.makeText(this,"Something went wrong",Toast.LENGTH_SHORT).show()
@@ -49,5 +52,10 @@ class LoginActivity : AppCompatActivity() {
     private fun toMain(){
         val intent = Intent(this,MainActivity::class.java)
         startActivity(intent)
+    }
+
+    fun splitString(str:String):String{
+        val split = str.split("@")
+        return split[0]
     }
 }
