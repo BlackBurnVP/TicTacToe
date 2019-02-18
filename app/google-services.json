@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "619408216399",
+    "firebase_url": "https://tictactoy-bd4bd.firebaseio.com",
+    "project_id": "tictactoy-bd4bd",
+    "storage_bucket": "tictactoy-bd4bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:619408216399:android:dcb94ac392df119d",
+        "android_client_info": {
+          "package_name": "com.vitalii.tictactoylocal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "619408216399-dbvtosb4lmdjnquse4date47apemisnj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vitalii.tictactoylocal",
+            "certificate_hash": "52ed0aa0c621d0697cb03e2b0084d57d95fc2c5a"
+          }
+        },
+        {
+          "client_id": "619408216399-vos25am2qio9a0dgg7mkm8p9tov2enn2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzKQsIiwqW_z3DchNTNxtEHOnpDfxiJlg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "619408216399-vos25am2qio9a0dgg7mkm8p9tov2enn2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
