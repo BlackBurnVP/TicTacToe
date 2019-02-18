@@ -1,15 +1,17 @@
 package com.vitalii.tictactoylocal
 
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import com.google.firebase.analytics.FirebaseAnalytics
-
+import com.google.firebase.database.FirebaseDatabase
 
 
 class MainActivity : AppCompatActivity() {
@@ -20,12 +22,22 @@ class MainActivity : AppCompatActivity() {
     private var activePlayer = 1
     private var emptyCell = ArrayList<Int>()
     private var winner =-1
+    private var mDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()
+    private var mRef = mDatabase.reference
+
+    private lateinit var sp: SharedPreferences
+    private lateinit var ed: SharedPreferences.Editor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        sp = PreferenceManager.getDefaultSharedPreferences(this)
+        ed = sp.edit()
+
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
+
+        btnInvite.setOnClickListener(invite)
     }
 
     protected fun onClick(view: View){
@@ -56,7 +68,7 @@ class MainActivity : AppCompatActivity() {
                 findWinner()
                 activePlayer = 2
                 if(winner == -1){
-                    ArtificialPlayer()
+                    artificialPlayer()
                 }
             }; else if (activePlayer == 2) {
                 btnSelected.text = "O"
@@ -121,7 +133,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if(winner != -1){
-            anounceWinner()
+            announceWinner()
 //            if(winner==1){
 //                Toast.makeText(this,"WINNER IS PLAYER 1",Toast.LENGTH_SHORT).show()
 //                activePlayer = 0
@@ -131,7 +143,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun ArtificialPlayer(){
+    private fun artificialPlayer(){
         for (cellId in 1..9){
             if(!(player1.contains(cellId) || player2.contains(cellId))){
                 emptyCell.add(cellId)
@@ -160,7 +172,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun anounceWinner(){
+    private fun announceWinner(){
             Toast.makeText(this,"WINNER IS PLAYER $winner",Toast.LENGTH_SHORT).show()
+    }
+
+    private val invite = View.OnClickListener {
+        val email = edOtherEmail.text.toString()
+        mRef.child("Users").child(email).child("Request").push().setValue(sp.getString("email",""))
+    }
+    private val accept = View.OnClickListener {
+        val email = edOtherEmail.text.toString()
+
     }
 }

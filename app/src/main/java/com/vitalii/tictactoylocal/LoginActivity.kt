@@ -1,8 +1,10 @@
 package com.vitalii.tictactoylocal
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.view.View
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_login.*
@@ -15,11 +17,16 @@ class LoginActivity : AppCompatActivity() {
     private var mAuth: FirebaseAuth? = null
     private var mDatabase:FirebaseDatabase = FirebaseDatabase.getInstance()
     private var mRef = mDatabase.reference
-
+    private lateinit var sp:SharedPreferences
+    private lateinit var ed:SharedPreferences.Editor
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         mAuth = FirebaseAuth.getInstance()
+
+        sp = PreferenceManager.getDefaultSharedPreferences(this)
+        ed = sp.edit()
+
 
         btnLogin.setOnClickListener(loginEvent)
     }
@@ -33,7 +40,9 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener{
                 if (it.isSuccessful){
                     Toast.makeText(this,"Successful",Toast.LENGTH_SHORT).show()
-                    mRef.child("Users").child(splitString(mAuth!!.currentUser!!.email!!)).setValue(mAuth!!.currentUser!!.uid)
+                    mRef.child("Users").child(splitString(mAuth!!.currentUser!!.email!!)).child("Request")  .setValue(mAuth!!.currentUser!!.uid)
+                    ed.putString("email",mAuth!!.currentUser!!.email).commit()
+                    ed.putString("uid",mAuth!!.currentUser!!.uid).commit()
                     toMain()
                 }else{
                     Toast.makeText(this,"Something went wrong",Toast.LENGTH_SHORT).show()

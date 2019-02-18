@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">Tic Tac Toy Local</string>
+    <string name="app_name">Tic Tac Toy</string>
     <string name="title_activity_login">LoginActivity</string>
 </resources>

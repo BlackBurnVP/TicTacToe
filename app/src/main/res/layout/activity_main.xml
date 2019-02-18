@@ -1,5 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:padding="5dp">
+        <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:ems="10"
+                android:id="@+id/edOtherEmail" android:layout_weight="1" android:hint="Email"
+                android:layout_margin="2dp"/>
+        <Button
+                android:text="Invite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/btnInvite" android:layout_weight="1"
+                android:background="@android:color/holo_blue_light" android:layout_margin="2dp"/>
+        <Button
+                android:text="Accept"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/btnAccept" android:layout_weight="1"
+                android:background="@android:color/holo_green_light" android:layout_margin="2dp"/>
+    </LinearLayout>
+    <TableLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -64,3 +90,4 @@
                 android:layout_marginRight="3dp" android:onClick="onClick"/>
     </TableRow>
 </TableLayout>
+</LinearLayout>
