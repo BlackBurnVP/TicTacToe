@@ -8,19 +8,24 @@ import android.widget.Button
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
-import kotlin.math.nextDown
+import com.google.firebase.analytics.FirebaseAnalytics
+
+
 
 class MainActivity : AppCompatActivity() {
 
-    var Player1 = ArrayList<Int>()
-    var Player2 = ArrayList<Int>()
-    var ActivePlayer = 1
-    var emptyCell = ArrayList<Int>()
-    var winner =-1
+    private var mFirebaseAnalytics: FirebaseAnalytics? = null
+    private var player1 = ArrayList<Int>()
+    private var player2 = ArrayList<Int>()
+    private var activePlayer = 1
+    private var emptyCell = ArrayList<Int>()
+    private var winner =-1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
     }
 
     protected fun onClick(view: View){
@@ -44,74 +49,74 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun playGame(cellId:Int,btnSelected:Button) {
-            if (ActivePlayer == 1) {
+            if (activePlayer == 1) {
                 btnSelected.text = "X"
                 btnSelected.setBackgroundColor(Color.GREEN)
-                Player1.add(cellId)
+                player1.add(cellId)
                 findWinner()
-                ActivePlayer = 2
+                activePlayer = 2
                 if(winner == -1){
                     ArtificialPlayer()
                 }
-            }; else if (ActivePlayer == 2) {
+            }; else if (activePlayer == 2) {
                 btnSelected.text = "O"
                 btnSelected.setBackgroundColor(Color.BLUE)
-                Player2.add(cellId)
-                ActivePlayer = 1
+                player2.add(cellId)
+                activePlayer = 1
             }
             btnSelected.isEnabled = false
             //findWinner()
     }
 
     private fun findWinner(){
-        if(Player1.contains(1) && Player1.contains(2) && Player1.contains(3)){
+        if(player1.contains(1) && player1.contains(2) && player1.contains(3)){
             winner = 1
         }
 
-        if(Player1.contains(4) && Player1.contains(5) && Player1.contains(6)){
+        if(player1.contains(4) && player1.contains(5) && player1.contains(6)){
             winner = 1
         }
 
-        if(Player1.contains(7) && Player1.contains(8) && Player1.contains(9)){
+        if(player1.contains(7) && player1.contains(8) && player1.contains(9)){
             winner = 1
         }
 
-        if(Player1.contains(1) && Player1.contains(4) && Player1.contains(7)){
+        if(player1.contains(1) && player1.contains(4) && player1.contains(7)){
             winner = 1
         }
 
-        if(Player1.contains(2) && Player1.contains(5) && Player1.contains(8)){
+        if(player1.contains(2) && player1.contains(5) && player1.contains(8)){
             winner = 1
         }
 
-        if(Player1.contains(3) && Player1.contains(6) && Player1.contains(9)){
+        if(player1.contains(3) && player1.contains(6) && player1.contains(9)){
             winner = 1
         }
         /*
         * PLAYER TWO
         * */
 
-        if(Player2.contains(1) && Player2.contains(2) && Player2.contains(3)){
+        if(player2.contains(1) && player2.contains(2) && player2.contains(3)){
             winner = 2
         }
 
-        if(Player2.contains(4) && Player2.contains(5) && Player2.contains(6)){
+        if(player2.contains(4) && player2.contains(5) && player2.contains(6)){
             winner = 2
         }
 
-        if(Player2.contains(7) && Player2.contains(8) && Player2.contains(9)){
+        if(player2.contains(7) && player2.contains(8) && player2.contains(9)){
             winner = 2
         }
 
-        if(Player2.contains(1) && Player2.contains(4) && Player2.contains(7)){
+        if(player2.contains(1) && player2.contains(4) && player2.contains(7)){
             winner = 2
         }
 
-        if(Player2.contains(2) && Player2.contains(5) && Player2.contains(8)){
+        if(player2.contains(2) && player2.contains(5) && player2.contains(8)){
             winner = 2
         }
 
-        if(Player2.contains(3) && Player2.contains(6) && Player2.contains(9)){
+        if(player2.contains(3) && player2.contains(6) && player2.contains(9)){
             winner = 2
         }
 
@@ -119,7 +124,7 @@ class MainActivity : AppCompatActivity() {
             anounceWinner()
 //            if(winner==1){
 //                Toast.makeText(this,"WINNER IS PLAYER 1",Toast.LENGTH_SHORT).show()
-//                ActivePlayer = 0
+//                activePlayer = 0
 //            };else{
 //                Toast.makeText(this,"WINNER IS PLAYER 2",Toast.LENGTH_SHORT).show()
 //            }
@@ -128,7 +133,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun ArtificialPlayer(){
         for (cellId in 1..9){
-            if(!(Player1.contains(cellId) || Player2.contains(cellId))){
+            if(!(player1.contains(cellId) || player2.contains(cellId))){
                 emptyCell.add(cellId)
             }
         }
