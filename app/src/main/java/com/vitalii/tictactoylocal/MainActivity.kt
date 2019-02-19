@@ -11,7 +11,12 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import java.lang.Exception
+import kotlin.collections.HashMap
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,6 +29,8 @@ class MainActivity : AppCompatActivity() {
     private var winner =-1
     private var mDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()
     private var mRef = mDatabase.reference
+    private var userEmail:String? = ""
+    private val login = LoginActivity()
 
     private lateinit var sp: SharedPreferences
     private lateinit var ed: SharedPreferences.Editor
@@ -35,9 +42,14 @@ class MainActivity : AppCompatActivity() {
         sp = PreferenceManager.getDefaultSharedPreferences(this)
         ed = sp.edit()
 
+        userEmail = sp.getString("email","")
+
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
         btnInvite.setOnClickListener(invite)
+        btnAccept.setOnClickListener(accept)
+
+        incomingRequests()
     }
 
     protected fun onClick(view: View){
@@ -178,10 +190,39 @@ class MainActivity : AppCompatActivity() {
 
     private val invite = View.OnClickListener {
         val email = edOtherEmail.text.toString()
-        mRef.child("Users").child(email).child("Request").push().setValue(sp.getString("email",""))
+        println(userEmail)
+        println(email)
+        if (splitString(email)!=userEmail){
+            mRef.child("Users").child(splitString(email)).child("Request").push().setValue(userEmail)
+        }else{
+            Toast.makeText(this,"You can't invite yourself",Toast.LENGTH_SHORT).show()
+        }
     }
     private val accept = View.OnClickListener {
         val email = edOtherEmail.text.toString()
+        mRef.child("Users").child(splitString(email)).child("Request").push().setValue(userEmail)
+    }
 
+    private fun incomingRequests(){
+        mRef.child("Users").child(splitString(userEmail!!)).child("Request")
+            .addValueEventListener(object :ValueEventListener{
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    for (snapshot in dataSnapshot.children){
+                        val td = dataSnapshot.value as HashMap<String, Any>
+                        val values = td[snapshot.key!!].toString()
+                        edOtherEmail.setText(values)
+                        mRef.child("Users").child(splitString(userEmail!!)).child("Request").setValue(true)
+                        break
+                    }
+            }
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+        })
+    }
+
+    private fun splitString(str:String):String{
+        val split = str.split("@")
+        return split[0]
     }
 }

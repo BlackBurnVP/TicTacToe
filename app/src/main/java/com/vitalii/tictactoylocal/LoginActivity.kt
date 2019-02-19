@@ -39,10 +39,11 @@ class LoginActivity : AppCompatActivity() {
         mAuth!!.createUserWithEmailAndPassword(email,password)
             .addOnCompleteListener{
                 if (it.isSuccessful){
+                    val currentUser = mAuth!!.currentUser
                     Toast.makeText(this,"Successful",Toast.LENGTH_SHORT).show()
-                    mRef.child("Users").child(splitString(mAuth!!.currentUser!!.email!!)).child("Request")  .setValue(mAuth!!.currentUser!!.uid)
-                    ed.putString("email",mAuth!!.currentUser!!.email).commit()
-                    ed.putString("uid",mAuth!!.currentUser!!.uid).commit()
+                    mRef.child("Users").child(splitString(currentUser!!.email!!)).child("Request").setValue(currentUser.uid)
+                    ed.putString("email",splitString(currentUser.email!!)).commit()
+                    ed.putString("uid",currentUser.uid).commit()
                     toMain()
                 }else{
                     Toast.makeText(this,"Something went wrong",Toast.LENGTH_SHORT).show()
