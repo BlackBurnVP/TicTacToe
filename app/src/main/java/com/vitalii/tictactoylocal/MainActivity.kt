@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         incomingRequests()
     }
 
-    protected fun onClick(view: View){
+    fun onClick(view: View){
 
         val btnSelected = view as Button
         var cellID = 0
@@ -68,8 +68,11 @@ class MainActivity : AppCompatActivity() {
             R.id.btn9 -> cellID=9
         }
 
-        Toast.makeText(this,"Clicked $cellID",Toast.LENGTH_SHORT).show()
-        playGame(cellID,btnSelected)
+        //Toast.makeText(this,"Clicked $cellID",Toast.LENGTH_SHORT).show()
+
+        //playGame(cellID,btnSelected)
+
+        mRef.child("OnlinePlayer").child(sessionID!!).child(cellID.toString()).setValue(userEmail)
     }
 
     private fun playGame(cellId:Int,btnSelected:Button) {
@@ -77,19 +80,17 @@ class MainActivity : AppCompatActivity() {
                 btnSelected.text = "X"
                 btnSelected.setBackgroundColor(Color.GREEN)
                 player1.add(cellId)
-                findWinner()
+//                findWinner()
                 activePlayer = 2
-                if(winner == -1){
-                    artificialPlayer()
-                }
-            }; else if (activePlayer == 2) {
+
+            }else{
                 btnSelected.text = "O"
                 btnSelected.setBackgroundColor(Color.BLUE)
                 player2.add(cellId)
                 activePlayer = 1
             }
             btnSelected.isEnabled = false
-            //findWinner()
+            findWinner()
     }
 
     private fun findWinner(){
@@ -155,33 +156,73 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun artificialPlayer(){
-        for (cellId in 1..9){
-            if(!(player1.contains(cellId) || player2.contains(cellId))){
-                emptyCell.add(cellId)
-            }
-        }
-        val r = Random()
-        val randIndex = r.nextInt(emptyCell.size-0)+0
-        val cellId = emptyCell[randIndex]
+    private fun autoPlay(cellId:Int){
 
-        val btnSelected:Button
-        when(cellId){
-            1-> btnSelected = btn1
-            2-> btnSelected = btn2
-            3-> btnSelected = btn3
-            4-> btnSelected = btn4
-            5-> btnSelected = btn5
-            6-> btnSelected = btn6
-            7-> btnSelected = btn7
-            8-> btnSelected = btn8
-            9-> btnSelected = btn9
-            else -> btnSelected = btn1
+        val btnSelected:Button = when(cellId){
+            1-> btn1
+            2-> btn2
+            3-> btn3
+            4-> btn4
+            5-> btn5
+            6-> btn6
+            7-> btn7
+            8-> btn8
+            9-> btn9
+            else -> btn1
         }
-        findWinner()
-        if(winner == -1){
-            playGame(cellId,btnSelected)
-        }
+        playGame(cellId,btnSelected)
+    }
+
+    private var sessionID:String? = null
+    private var playerSymbol:String? = null
+
+    private fun onlinePlayer(sessionID:String){
+        this.sessionID = sessionID
+        mRef.child("OnlinePlayer").removeValue()
+        mRef.child("OnlinePlayer").child(sessionID)
+            .addValueEventListener(object :ValueEventListener{
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                        player1.clear()
+//                        player2.clear()
+                    try {
+                        if (dataSnapshot.value!= null) {
+                            val td = HashMap<String,Any>()
+                            for (snapshot in dataSnapshot.children){
+                                val valuer = snapshot.value
+                                td[snapshot.key!!] = valuer!!
+                            }
+//                            td = dataSnapshot.value as HashMap<String, Any>
+                            for (key in td.keys) {
+                                val value = td[key].toString()
+
+                                if (value != userEmail) {
+                                    activePlayer = if (playerSymbol == "X") 1 else 2
+                                } else {
+                                    activePlayer = if (playerSymbol == "X") 2 else 1
+                                }
+                                autoPlay(key.toInt())
+                            }
+                        }
+                    }catch (ex:Exception){
+                        if (dataSnapshot.value!= null) {
+                            val td: HashMap<String, *> = dataSnapshot.value as HashMap<String, *>
+                            for (key in td.keys) {
+                                val value = td[key].toString()
+
+                                if (value != userEmail) {
+                                    activePlayer = if (playerSymbol == "X") 1 else 2
+                                } else {
+                                    activePlayer = if (playerSymbol == "X") 2 else 1
+                                }
+                                autoPlay(key.toInt())
+                            }
+                        }
+                    }
+                }
+                override fun onCancelled(p0: DatabaseError) {
+
+                }
+            })
     }
 
     private fun announceWinner(){
@@ -190,17 +231,20 @@ class MainActivity : AppCompatActivity() {
 
     private val invite = View.OnClickListener {
         val email = edOtherEmail.text.toString()
-        println(userEmail)
-        println(email)
         if (splitString(email)!=userEmail){
             mRef.child("Users").child(splitString(email)).child("Request").push().setValue(userEmail)
+            onlinePlayer(userEmail+splitString(email))
+            activePlayer = 1
         }else{
             Toast.makeText(this,"You can't invite yourself",Toast.LENGTH_SHORT).show()
         }
     }
+
     private val accept = View.OnClickListener {
         val email = edOtherEmail.text.toString()
         mRef.child("Users").child(splitString(email)).child("Request").push().setValue(userEmail)
+        onlinePlayer(splitString(email)+userEmail)
+        activePlayer = 2
     }
 
     private fun incomingRequests(){
