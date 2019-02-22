@@ -36,73 +36,95 @@
                 android:layout_margin="2dp"/>
     </LinearLayout>
 
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:id="@+id/txtConnected"/>
     <TableLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity"
-        android:gravity="center">
+        android:gravity="center"
+        android:id="@+id/gamePanel">
 
     <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center">
         <Button
+                android:background="@drawable/background_btn"
                 android:layout_width="40pt"
                 android:layout_height="40pt"
                 android:id="@+id/btn1"
-                android:layout_marginRight="3dp" android:onClick="onClick"/>
+                android:onClick="onClick"
+                android:layout_margin="3dp"/>
         <Button
+                android:background="@drawable/background_btn"
                 android:layout_width="40pt"
                 android:layout_height="40pt"
                 android:id="@+id/btn2"
-                android:layout_marginRight="3dp" android:onClick="onClick"/>
+                android:layout_margin="3dp"
+                android:onClick="onClick"/>
         <Button
+                android:background="@drawable/background_btn"
                 android:layout_width="40pt"
                 android:layout_height="40pt"
                 android:id="@+id/btn3"
-                android:layout_marginRight="3dp" android:onClick="onClick"/>
+                android:layout_margin="3dp"
+                android:onClick="onClick"/>
     </TableRow>
     <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center">
         <Button
+                android:background="@drawable/background_btn"
                 android:layout_width="40pt"
                 android:layout_height="40pt"
                 android:id="@+id/btn4"
-                android:layout_marginRight="3dp" android:onClick="onClick"/>
+                android:layout_margin="3dp"
+                android:onClick="onClick"/>
         <Button
+                android:background="@drawable/background_btn"
                 android:layout_width="40pt"
                 android:layout_height="40pt"
                 android:id="@+id/btn5"
-                android:layout_marginRight="3dp" android:onClick="onClick"/>
+                android:layout_margin="3dp"
+                android:onClick="onClick"/>
         <Button
+                android:background="@drawable/background_btn"
                 android:layout_width="40pt"
                 android:layout_height="40pt"
                 android:id="@+id/btn6"
-                android:layout_marginRight="3dp" android:onClick="onClick"/>
+                android:layout_margin="3dp"
+                android:onClick="onClick"/>
     </TableRow>
     <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center">
         <Button
+                android:background="@drawable/background_btn"
                 android:layout_width="40pt"
                 android:layout_height="40pt"
                 android:id="@+id/btn7"
-                android:layout_marginRight="3dp" android:onClick="onClick"/>
+                android:layout_margin="3dp"
+                android:onClick="onClick"/>
         <Button
+                android:background="@drawable/background_btn"
                 android:layout_width="40pt"
                 android:layout_height="40pt"
                 android:id="@+id/btn8"
-                android:layout_marginRight="3dp" android:onClick="onClick"/>
+                android:layout_margin="3dp"
+                android:onClick="onClick"/>
         <Button
+                android:background="@drawable/background_btn"
                 android:layout_width="40pt"
                 android:layout_height="40pt"
                 android:id="@+id/btn9"
-                android:layout_marginRight="3dp" android:onClick="onClick"/>
+                android:layout_margin="3dp"
+                android:onClick="onClick"/>
     </TableRow>
 </TableLayout>
 </LinearLayout>

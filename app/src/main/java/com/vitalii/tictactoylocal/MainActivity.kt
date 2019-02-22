@@ -1,22 +1,25 @@
 package com.vitalii.tictactoylocal
 
+import android.annotation.SuppressLint
+import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.support.v7.app.AlertDialog
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import java.lang.Exception
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
+import android.R.string.ok
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -25,12 +28,11 @@ class MainActivity : AppCompatActivity() {
     private var player1 = ArrayList<Int>()
     private var player2 = ArrayList<Int>()
     private var activePlayer = 1
-    private var emptyCell = ArrayList<Int>()
+    private var usedCell = ArrayList<Button>()
     private var winner =-1
     private var mDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()
     private var mRef = mDatabase.reference
     private var userEmail:String? = ""
-    private val login = LoginActivity()
 
     private lateinit var sp: SharedPreferences
     private lateinit var ed: SharedPreferences.Editor
@@ -54,25 +56,24 @@ class MainActivity : AppCompatActivity() {
 
     fun onClick(view: View){
 
-        val btnSelected = view as Button
-        var cellID = 0
-        when(btnSelected.id){
-            R.id.btn1 -> cellID=1
-            R.id.btn2 -> cellID=2
-            R.id.btn3 -> cellID=3
-            R.id.btn4 -> cellID=4
-            R.id.btn5 -> cellID=5
-            R.id.btn6 -> cellID=6
-            R.id.btn7 -> cellID=7
-            R.id.btn8 -> cellID=8
-            R.id.btn9 -> cellID=9
+        if(winner== -1){
+            val btnSelected = view as Button
+            var cellID = 0
+            when(btnSelected.id){
+                R.id.btn1 -> cellID=1
+                R.id.btn2 -> cellID=2
+                R.id.btn3 -> cellID=3
+                R.id.btn4 -> cellID=4
+                R.id.btn5 -> cellID=5
+                R.id.btn6 -> cellID=6
+                R.id.btn7 -> cellID=7
+                R.id.btn8 -> cellID=8
+                R.id.btn9 -> cellID=9
+            }
+            mRef.child("OnlinePlayer").child(sessionID!!).child(cellID.toString()).setValue(userEmail)
+        }else{
+            announceWinner()
         }
-
-        //Toast.makeText(this,"Clicked $cellID",Toast.LENGTH_SHORT).show()
-
-        //playGame(cellID,btnSelected)
-
-        mRef.child("OnlinePlayer").child(sessionID!!).child(cellID.toString()).setValue(userEmail)
     }
 
     private fun playGame(cellId:Int,btnSelected:Button) {
@@ -80,7 +81,6 @@ class MainActivity : AppCompatActivity() {
                 btnSelected.text = "X"
                 btnSelected.setBackgroundColor(Color.GREEN)
                 player1.add(cellId)
-//                findWinner()
                 activePlayer = 2
 
             }else{
@@ -90,6 +90,7 @@ class MainActivity : AppCompatActivity() {
                 activePlayer = 1
             }
             btnSelected.isEnabled = false
+            usedCell.add(btnSelected)
             findWinner()
     }
 
@@ -147,12 +148,6 @@ class MainActivity : AppCompatActivity() {
 
         if(winner != -1){
             announceWinner()
-//            if(winner==1){
-//                Toast.makeText(this,"WINNER IS PLAYER 1",Toast.LENGTH_SHORT).show()
-//                activePlayer = 0
-//            };else{
-//                Toast.makeText(this,"WINNER IS PLAYER 2",Toast.LENGTH_SHORT).show()
-//            }
         }
     }
 
@@ -173,17 +168,17 @@ class MainActivity : AppCompatActivity() {
         playGame(cellId,btnSelected)
     }
 
-    private var sessionID:String? = null
+    private var sessionID:String? = ""
     private var playerSymbol:String? = null
 
     private fun onlinePlayer(sessionID:String){
         this.sessionID = sessionID
-        mRef.child("OnlinePlayer").removeValue()
+
         mRef.child("OnlinePlayer").child(sessionID)
             .addValueEventListener(object :ValueEventListener{
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                        player1.clear()
-//                        player2.clear()
+                        player1.clear()
+                        player2.clear()
                     try {
                         if (dataSnapshot.value!= null) {
                             val td = HashMap<String,Any>()
@@ -191,50 +186,35 @@ class MainActivity : AppCompatActivity() {
                                 val valuer = snapshot.value
                                 td[snapshot.key!!] = valuer!!
                             }
-//                            td = dataSnapshot.value as HashMap<String, Any>
                             for (key in td.keys) {
                                 val value = td[key].toString()
 
                                 if (value != userEmail) {
-                                    activePlayer = if (playerSymbol == "X") 1 else 2
-                                } else {
                                     activePlayer = if (playerSymbol == "X") 2 else 1
+                                } else {
+                                    activePlayer = if (playerSymbol == "X") 1 else 2
                                 }
                                 autoPlay(key.toInt())
                             }
                         }
-                    }catch (ex:Exception){
-                        if (dataSnapshot.value!= null) {
-                            val td: HashMap<String, *> = dataSnapshot.value as HashMap<String, *>
-                            for (key in td.keys) {
-                                val value = td[key].toString()
-
-                                if (value != userEmail) {
-                                    activePlayer = if (playerSymbol == "X") 1 else 2
-                                } else {
-                                    activePlayer = if (playerSymbol == "X") 2 else 1
-                                }
-                                autoPlay(key.toInt())
-                            }
-                        }
-                    }
+                    }catch (ex:Exception){ }
                 }
-                override fun onCancelled(p0: DatabaseError) {
-
-                }
+                override fun onCancelled(p0: DatabaseError) {}
             })
     }
 
     private fun announceWinner(){
-            Toast.makeText(this,"WINNER IS PLAYER $winner",Toast.LENGTH_SHORT).show()
+        Toast.makeText(this,"WINNER IS PLAYER $winner",Toast.LENGTH_SHORT).show()
+        mRef.child("OnlinePlayer").child(sessionID!!).removeValue()
     }
 
     private val invite = View.OnClickListener {
         val email = edOtherEmail.text.toString()
         if (splitString(email)!=userEmail){
             mRef.child("Users").child(splitString(email)).child("Request").push().setValue(userEmail)
-            onlinePlayer(userEmail+splitString(email))
-            activePlayer = 1
+            sessionID = userEmail+splitString(email)
+            onlinePlayer(sessionID!!)
+            playerSymbol = "X"
         }else{
             Toast.makeText(this,"You can't invite yourself",Toast.LENGTH_SHORT).show()
         }
@@ -242,11 +222,15 @@ class MainActivity : AppCompatActivity() {
 
     private val accept = View.OnClickListener {
         val email = edOtherEmail.text.toString()
+        sessionID = splitString(email)+userEmail
+        mRef.child("OnlinePlayer").child(sessionID!!).removeValue()
         mRef.child("Users").child(splitString(email)).child("Request").push().setValue(userEmail)
-        onlinePlayer(splitString(email)+userEmail)
-        activePlayer = 2
+        mRef.child("OnlinePlayer").child(sessionID!!).setValue(true)
+        onlinePlayer(sessionID!!)
+        playerSymbol = "O"
     }
 
+    private var number = 0
     private fun incomingRequests(){
         mRef.child("Users").child(splitString(userEmail!!)).child("Request")
             .addValueEventListener(object :ValueEventListener{
@@ -255,6 +239,10 @@ class MainActivity : AppCompatActivity() {
                         val td = dataSnapshot.value as HashMap<String, Any>
                         val values = td[snapshot.key!!].toString()
                         edOtherEmail.setText(values)
+                        val notifyMe = Notifications()
+                        notifyMe.Notify(this@MainActivity,values,number)
+                        alert()
+                        number++
                         mRef.child("Users").child(splitString(userEmail!!)).child("Request").setValue(true)
                         break
                     }
@@ -263,10 +251,51 @@ class MainActivity : AppCompatActivity() {
 
             }
         })
+            mRef.child("OnlinePlayer").child(sessionID!!)
+                .addValueEventListener(object :ValueEventListener{
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        for(snapshot in dataSnapshot.children){
+                            val td = dataSnapshot.value as HashMap<String,Any>
+                            if (td[snapshot.key!!].toString() == "true"){
+                                refresh()
+                                Toast.makeText(this@MainActivity,"Accepted",Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                    override fun onCancelled(p0: DatabaseError) {}
+                })
     }
+
 
     private fun splitString(str:String):String{
         val split = str.split("@")
         return split[0]
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mRef.child("OnlinePlayer").child(sessionID!!).removeValue()
+    }
+
+    @SuppressLint("NewApi")
+    private fun refresh(){
+        winner = -1
+        for (btn in usedCell){
+            btn.isEnabled = true
+            btn.background = resources.getDrawable(R.drawable.background_btn)
+            btn.text = ""
+        }
+    }
+
+    //TODO: Изменить уведомление
+    private fun alert(){
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("Invite from somebody")
+            .setTitle("Title")
+        builder.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, id ->
+            accept
+        })
+        val dialog = builder.create()
+        dialog.show()
     }
 }
