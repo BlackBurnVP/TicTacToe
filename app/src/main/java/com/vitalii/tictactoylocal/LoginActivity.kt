@@ -29,13 +29,33 @@ class LoginActivity : AppCompatActivity() {
 
 
         btnLogin.setOnClickListener(loginEvent)
+        btnRegister.setOnClickListener(registerEvent)
     }
 
     private val loginEvent = View.OnClickListener {
         loginToFirebase(edEmail.text.toString(),edPassword.text.toString())
     }
+    private val registerEvent = View.OnClickListener {
+        registerToFirebase(edEmail.text.toString(),edPassword.text.toString())
+    }
 
     private fun loginToFirebase(email:String, password:String){
+        mAuth!!.signInWithEmailAndPassword(email,password)
+            .addOnCompleteListener{
+                if (it.isSuccessful){
+                    val currentUser = mAuth!!.currentUser
+                    Toast.makeText(this,"Logged in as $email",Toast.LENGTH_SHORT).show()
+                    mRef.child("Users").child(splitString(currentUser!!.email!!)).child("Request").setValue(currentUser.uid)
+                    ed.putString("email",splitString(currentUser.email!!)).commit()
+                    ed.putString("uid",currentUser.uid).commit()
+                    toMain()
+                }else{
+                    Toast.makeText(this,"Invalid login data",Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+    private fun registerToFirebase(email:String, password:String){
         mAuth!!.createUserWithEmailAndPassword(email,password)
             .addOnCompleteListener{
                 if (it.isSuccessful){

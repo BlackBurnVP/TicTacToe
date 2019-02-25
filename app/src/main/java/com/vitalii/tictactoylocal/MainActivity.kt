@@ -2,29 +2,31 @@ package com.vitalii.tictactoylocal
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.support.v7.app.AlertDialog
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import java.lang.Exception
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-import android.R.string.ok
-
-
 
 
 class MainActivity : AppCompatActivity() {
 
     private var mFirebaseAnalytics: FirebaseAnalytics? = null
+    private var mAuth: FirebaseAuth? = null
     private var player1 = ArrayList<Int>()
     private var player2 = ArrayList<Int>()
     private var activePlayer = 1
@@ -32,7 +34,9 @@ class MainActivity : AppCompatActivity() {
     private var winner =-1
     private var mDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()
     private var mRef = mDatabase.reference
-    private var userEmail:String? = ""
+    private var myEmail:String? = ""
+    private val login = LoginActivity()
+    private var myTurn:Boolean = false
 
     private lateinit var sp: SharedPreferences
     private lateinit var ed: SharedPreferences.Editor
@@ -44,33 +48,53 @@ class MainActivity : AppCompatActivity() {
         sp = PreferenceManager.getDefaultSharedPreferences(this)
         ed = sp.edit()
 
-        userEmail = sp.getString("email","")
+        myEmail = sp.getString("email","")
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
+        mAuth = FirebaseAuth.getInstance()
 
         btnInvite.setOnClickListener(invite)
-        btnAccept.setOnClickListener(accept)
 
         incomingRequests()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu,menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+
+        when(item!!.itemId){
+            R.id.signOut -> {
+                mAuth!!.signOut()
+                val intent = Intent(this,LoginActivity::class.java)
+                startActivity(intent)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     fun onClick(view: View){
 
         if(winner== -1){
-            val btnSelected = view as Button
-            var cellID = 0
-            when(btnSelected.id){
-                R.id.btn1 -> cellID=1
-                R.id.btn2 -> cellID=2
-                R.id.btn3 -> cellID=3
-                R.id.btn4 -> cellID=4
-                R.id.btn5 -> cellID=5
-                R.id.btn6 -> cellID=6
-                R.id.btn7 -> cellID=7
-                R.id.btn8 -> cellID=8
-                R.id.btn9 -> cellID=9
+            if(myTurn) {
+                val btnSelected = view as Button
+                var cellID = 0
+                when (btnSelected.id) {
+                    R.id.btn1 -> cellID = 1
+                    R.id.btn2 -> cellID = 2
+                    R.id.btn3 -> cellID = 3
+                    R.id.btn4 -> cellID = 4
+                    R.id.btn5 -> cellID = 5
+                    R.id.btn6 -> cellID = 6
+                    R.id.btn7 -> cellID = 7
+                    R.id.btn8 -> cellID = 8
+                    R.id.btn9 -> cellID = 9
+                }
+                mRef.child("OnlinePlayer").child(sessionID!!).child(cellID.toString()).setValue(myEmail)
+                myTurn = false
             }
-            mRef.child("OnlinePlayer").child(sessionID!!).child(cellID.toString()).setValue(userEmail)
         }else{
             announceWinner()
         }
@@ -183,16 +207,17 @@ class MainActivity : AppCompatActivity() {
                         if (dataSnapshot.value!= null) {
                             val td = HashMap<String,Any>()
                             for (snapshot in dataSnapshot.children){
-                                val valuer = snapshot.value
-                                td[snapshot.key!!] = valuer!!
+                                val value = snapshot.value
+                                td[snapshot.key!!] = value!!
                             }
                             for (key in td.keys) {
                                 val value = td[key].toString()
 
-                                if (value != userEmail) {
-                                    activePlayer = if (playerSymbol == "X") 2 else 1
-                                } else {
+                                if (value == myEmail) {
                                     activePlayer = if (playerSymbol == "X") 1 else 2
+                                } else {
+                                    activePlayer = if (playerSymbol == "X") 2 else 1
+                                    myTurn = true
                                 }
                                 autoPlay(key.toInt())
                             }
@@ -210,67 +235,88 @@ class MainActivity : AppCompatActivity() {
 
     private val invite = View.OnClickListener {
         val email = edOtherEmail.text.toString()
-        if (splitString(email)!=userEmail){
-            mRef.child("Users").child(splitString(email)).child("Request").push().setValue(userEmail)
-            sessionID = userEmail+splitString(email)
+        if (login.splitString(email)!=myEmail){
+            sessionID = myEmail+login.splitString(email)
+            mRef.child("Users").child(login.splitString(email)).child("Request").push().setValue(myEmail)
+            mRef.child("OnlinePlayer").child(sessionID!!).setValue("Waiting for $email")
+            Toast.makeText(this,"Waiting for $email answer",Toast.LENGTH_SHORT).show()
             onlinePlayer(sessionID!!)
             playerSymbol = "X"
+            myTurn = true
         }else{
             Toast.makeText(this,"You can't invite yourself",Toast.LENGTH_SHORT).show()
         }
     }
 
-    private val accept = View.OnClickListener {
+
+    private fun accept(){
         val email = edOtherEmail.text.toString()
-        sessionID = splitString(email)+userEmail
-        mRef.child("OnlinePlayer").child(sessionID!!).removeValue()
-        mRef.child("Users").child(splitString(email)).child("Request").push().setValue(userEmail)
-        mRef.child("OnlinePlayer").child(sessionID!!).setValue(true)
+        sessionID = login.splitString(email)+myEmail
+        //mRef.child("OnlinePlayer").child(sessionID!!).removeValue()
+        mRef.child("Users").child(login.splitString(email)).child("Request").push().setValue(myEmail)
+        mRef.child("OnlinePlayer").child(sessionID!!).setValue("Accepted")
         onlinePlayer(sessionID!!)
         playerSymbol = "O"
     }
 
+    private fun decline(){
+        val email = edOtherEmail.text.toString()
+        sessionID = login.splitString(email)+myEmail
+        mRef.child("OnlinePlayer").child(sessionID!!).setValue("Declined")
+        edOtherEmail.text.clear()
+    }
+
     private var number = 0
+
     private fun incomingRequests(){
-        mRef.child("Users").child(splitString(userEmail!!)).child("Request")
+        mRef.child("Users").child(login.splitString(myEmail!!)).child("Request")
             .addValueEventListener(object :ValueEventListener{
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
                     for (snapshot in dataSnapshot.children){
-                        val td = dataSnapshot.value as HashMap<String, Any>
-                        val values = td[snapshot.key!!].toString()
-                        edOtherEmail.setText(values)
-                        val notifyMe = Notifications()
-                        notifyMe.Notify(this@MainActivity,values,number)
-                        alert()
-                        number++
-                        mRef.child("Users").child(splitString(userEmail!!)).child("Request").setValue(true)
+                        val tp = dataSnapshot.value as HashMap<String, Any>
+                        val value = tp[snapshot.key!!].toString()
+                        edOtherEmail.setText(value)
+//                        val notifyMe = Notifications()
+//                        notifyMe.Notify(this@MainActivity,values,number)
+//                        number++
+                        mRef.child("Users").child(login.splitString(myEmail!!)).child("Request").setValue(true)
                         break
                     }
-            }
-            override fun onCancelled(p0: DatabaseError) {
+                }
+                override fun onCancelled(p0: DatabaseError) {}
+            })
+        mRef.child("OnlinePlayer").child(sessionID!!)
+            .addValueEventListener(object :ValueEventListener{
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    for(snapshot in dataSnapshot.children){
+                        val td = HashMap<String,Any>()
+                        val value = snapshot.value
+                        td[snapshot.key!!] = value!!
 
-            }
-        })
-            mRef.child("OnlinePlayer").child(sessionID!!)
-                .addValueEventListener(object :ValueEventListener{
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        for(snapshot in dataSnapshot.children){
-                            val td = dataSnapshot.value as HashMap<String,Any>
-                            if (td[snapshot.key!!].toString() == "true"){
+                        when(td[snapshot.key!!.toString()]){
+                            "Accepted" ->{
                                 refresh()
                                 Toast.makeText(this@MainActivity,"Accepted",Toast.LENGTH_SHORT).show()
                             }
+                            "Waiting for $myEmail" ->{
+                                alert()
+                            }
+                            "Declined" ->{
+                                Toast.makeText(this@MainActivity,"Declined",Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
-                    override fun onCancelled(p0: DatabaseError) {}
-                })
+                }
+                override fun onCancelled(p0: DatabaseError) {}
+            })
+
     }
 
 
-    private fun splitString(str:String):String{
-        val split = str.split("@")
-        return split[0]
-    }
+//    private fun splitString(str:String):String{
+//        val split = str.split("@")
+//        return split[0]
+//    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -287,13 +333,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    //TODO: Изменить уведомление
     private fun alert(){
+        val email = edOtherEmail.text.toString()
         val builder = AlertDialog.Builder(this)
-        builder.setMessage("Invite from somebody")
-            .setTitle("Title")
-        builder.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, id ->
-            accept
+        builder.setMessage("Player $email has invited you to the game")
+            .setTitle("TicTacToy Invite")
+        builder.setPositiveButton("Accept", DialogInterface.OnClickListener { dialog, id ->
+            accept()
+        })
+        builder.setNegativeButton("Decline", DialogInterface.OnClickListener{dialog, id ->
+            decline()
         })
         val dialog = builder.create()
         dialog.show()

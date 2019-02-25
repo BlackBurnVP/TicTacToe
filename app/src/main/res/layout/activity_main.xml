@@ -26,14 +26,6 @@
                 android:layout_weight="1"
                 android:background="@android:color/holo_blue_light"
                 android:layout_margin="2dp"/>
-        <Button
-                android:text="Accept"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/btnAccept"
-                android:layout_weight="1"
-                android:background="@android:color/holo_green_light"
-                android:layout_margin="2dp"/>
     </LinearLayout>
 
     <TextView
