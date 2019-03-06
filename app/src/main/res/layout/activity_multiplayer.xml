@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/btnInvite"
                 android:layout_weight="1"
-                android:background="@android:color/holo_blue_light"
+                android:background="@drawable/background_menu_btn"
                 android:layout_margin="2dp"/>
     </LinearLayout>
 

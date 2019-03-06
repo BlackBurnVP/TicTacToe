@@ -8,7 +8,7 @@
         tools:context=".MenuActivity" android:padding="10dp">
 
     <TextView
-            android:text="Welcome to Tic Tac Toy Game"
+            android:text="Tic Tac Toe"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/txtWelcome" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
@@ -16,7 +16,7 @@
             android:layout_marginLeft="8dp" android:layout_marginStart="8dp" android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent" android:layout_marginTop="8dp"
             app:layout_constraintTop_toTopOf="parent" app:layout_constraintVertical_bias="0.071"
-            android:textSize="18sp"/>
+            android:textSize="30sp" android:textStyle="bold" android:textColor="@android:color/black"/>
     <Button
             android:text="Single player"
             android:layout_width="0dp"
@@ -25,27 +25,30 @@
             android:layout_marginRight="20dp" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="20dp" android:layout_marginStart="20dp" android:layout_marginTop="8dp"
             app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintHorizontal_bias="0.502"
-            app:layout_constraintVertical_bias="0.331"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.304" android:background="@drawable/background_menu_btn"/>
     <Button
             android:text="Multiplayer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/btnMultiplayer" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
+            android:id="@+id/btnMultiplayer" android:layout_marginTop="50dp"
+            android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="20dp" android:layout_marginRight="20dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="20dp"
             android:layout_marginStart="20dp"
-            app:layout_constraintVertical_bias="0.498"/>
+            app:layout_constraintVertical_bias="0.0" android:background="@drawable/background_menu_btn"
+            app:layout_constraintTop_toBottomOf="@+id/btnSinglePlay"/>
     <Button
             android:text="Sign Out"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/btnSignOut" android:layout_marginTop="8dp"
-            app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
+            android:id="@+id/btnSignOut" android:layout_marginTop="50dp"
+            android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="20dp" android:layout_marginRight="20dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="20dp"
-            android:layout_marginStart="20dp" app:layout_constraintVertical_bias="0.644"/>
+            android:layout_marginStart="20dp" app:layout_constraintVertical_bias="0.0"
+            android:background="@drawable/background_menu_btn"
+            app:layout_constraintTop_toBottomOf="@+id/btnMultiplayer" app:layout_constraintHorizontal_bias="1.0"/>
 </android.support.constraint.ConstraintLayout>
