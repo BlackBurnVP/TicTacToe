@@ -48,7 +48,7 @@ class LoginActivity : AppCompatActivity() {
                     mRef.child("Users").child(splitString(currentUser!!.email!!)).child("Request").setValue(currentUser.uid)
                     ed.putString("email",splitString(currentUser.email!!)).commit()
                     ed.putString("uid",currentUser.uid).commit()
-                    toMain()
+                    toMenu()
                 }else{
                     Toast.makeText(this,"Invalid login data",Toast.LENGTH_SHORT).show()
                 }
@@ -64,7 +64,7 @@ class LoginActivity : AppCompatActivity() {
                     mRef.child("Users").child(splitString(currentUser!!.email!!)).child("Request").setValue(currentUser.uid)
                     ed.putString("email",splitString(currentUser.email!!)).commit()
                     ed.putString("uid",currentUser.uid).commit()
-                    toMain()
+                    toMenu()
                 }else{
                     Toast.makeText(this,"Something went wrong",Toast.LENGTH_SHORT).show()
                 }
@@ -75,12 +75,12 @@ class LoginActivity : AppCompatActivity() {
         super.onStart()
         val currentUser = mAuth!!.currentUser
         if (currentUser!=null){
-            toMain()
+            toMenu()
         }
     }
 
-    private fun toMain(){
-        val intent = Intent(this,MainActivity::class.java)
+    private fun toMenu(){
+        val intent = Intent(this,MenuActivity::class.java)
         startActivity(intent)
     }
 

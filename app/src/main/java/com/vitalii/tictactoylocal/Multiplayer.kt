@@ -23,7 +23,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 
-class MainActivity : AppCompatActivity() {
+class Multiplayer : AppCompatActivity() {
 
     private var mFirebaseAnalytics: FirebaseAnalytics? = null
     private var mAuth: FirebaseAuth? = null
@@ -66,9 +66,8 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
 
         when(item!!.itemId){
-            R.id.signOut -> {
-                mAuth!!.signOut()
-                val intent = Intent(this,LoginActivity::class.java)
+            R.id.toMenu -> {
+                val intent = Intent(this,MenuActivity::class.java)
                 startActivity(intent)
             }
         }
@@ -277,7 +276,7 @@ class MainActivity : AppCompatActivity() {
                         val value = tp[snapshot.key!!].toString()
                         edOtherEmail.setText(value)
 //                        val notifyMe = Notifications()
-//                        notifyMe.Notify(this@MainActivity,values,number)
+//                        notifyMe.Notify(this@Multiplayer,values,number)
 //                        number++
                         mRef.child("Users").child(login.splitString(myEmail!!)).child("Request").setValue(true)
                         break
@@ -296,13 +295,14 @@ class MainActivity : AppCompatActivity() {
                         when(td[snapshot.key!!.toString()]){
                             "Accepted" ->{
                                 refresh()
-                                Toast.makeText(this@MainActivity,"Accepted",Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@Multiplayer,"Accepted",Toast.LENGTH_SHORT).show()
+                                txtConnected.text = "Connected with ${edOtherEmail.text}"
                             }
                             "Waiting for $myEmail" ->{
                                 alert()
                             }
                             "Declined" ->{
-                                Toast.makeText(this@MainActivity,"Declined",Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@Multiplayer,"Declined",Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -311,12 +311,6 @@ class MainActivity : AppCompatActivity() {
             })
 
     }
-
-
-//    private fun splitString(str:String):String{
-//        val split = str.split("@")
-//        return split[0]
-//    }
 
     override fun onDestroy() {
         super.onDestroy()
